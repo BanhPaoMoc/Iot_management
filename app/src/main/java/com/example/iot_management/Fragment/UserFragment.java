@@ -3,6 +3,7 @@ package com.example.iot_management.Fragment;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,14 +17,24 @@ import androidx.fragment.app.Fragment;
 import com.example.iot_management.Activity.loginActivity;
 import com.example.iot_management.R;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 
 public class UserFragment extends Fragment {
+    private static final String TAG = "UserFragment";
 
     private TextView tvUserName, tvUserEmail, tvUserRole;
     private ImageView ivUserAvatar;
     private View llAbout, llTerms;
     private Button btnLogout;
+
+    private DatabaseReference mDatabase;
+    private FirebaseAuth mAuth;
 
     @Nullable
     @Override
@@ -39,10 +50,9 @@ public class UserFragment extends Fragment {
         llTerms = view.findViewById(R.id.llTerms);
         btnLogout = view.findViewById(R.id.btnLogout);
 
-        // Đặt tên, email, và vai trò người dùng
-        tvUserName.setText("Nguyễn Văn A");
-        tvUserEmail.setText("nguyenvana@example.com");
-        tvUserRole.setText("Quản trị viên");
+        // Khởi tạo Firebase
+        mAuth = FirebaseAuth.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference("Users");
 
         // Sự kiện click cho mục Giới thiệu
         llAbout.setOnClickListener(v -> {
@@ -50,6 +60,13 @@ public class UserFragment extends Fragment {
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://example.com/about"));
             startActivity(intent);
         });
+
+        // Lấy thông tin người dùng hiện tại
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            String userId = currentUser.getUid();
+            loadUserData(userId);
+        }
 
         // Sự kiện click cho mục Điều khoản và Chính sách
         llTerms.setOnClickListener(v -> {
@@ -72,5 +89,32 @@ public class UserFragment extends Fragment {
         });
 
         return view;
+    }
+
+    private void loadUserData(String userId) {
+        mDatabase.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    // Lấy thông tin từ snapshot
+                    String hoTen = snapshot.child("hoTen").getValue(String.class);
+                    String email = snapshot.child("email").getValue(String.class);
+                    Boolean role = snapshot.child("role").getValue(Boolean.class);
+
+                    // Hiển thị thông tin lên giao diện
+                    tvUserName.setText(hoTen != null ? "Họ tên: " + hoTen : "N/A");
+                    tvUserEmail.setText(email != null ? "Email:" +email : "N/A");
+                    tvUserRole.setText(role != null && role ? "Vai trò: Quản trị viên" : "Vài trò: Người dùng");
+                } else {
+                    Log.e(TAG, "User data not found for ID: " + userId);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+
+        });
     }
 }
