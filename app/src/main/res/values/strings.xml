@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Iot_management</string>
+    <string name="add">Add room</string>
+    <string name="logout_description">Logout</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>

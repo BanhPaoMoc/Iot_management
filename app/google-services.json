@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "101247490365",
+    "firebase_url": "https://iotmanagement-583f2-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "iotmanagement-583f2",
+    "storage_bucket": "iotmanagement-583f2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:101247490365:android:761b445629bce9bfaecd54",
+        "android_client_info": {
+          "package_name": "com.example.iot_management"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDvBYNLWWPsCyWkkUKB74C183oAljceUSk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

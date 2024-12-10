@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="nav_home" type="id"/>
+    <item name="nav_notification" type="id"/>
+    <item name="nav_setting" type="id"/>
+    <item name="nav_profile" type="id"/>
+</resources>

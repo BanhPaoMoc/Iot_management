@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/register"
+    android:layout_width="match_parent"
+    android:background="@color/blue"
+    android:layout_height="match_parent"
+    tools:context=".Activity.registerActivity">
+
+    <ImageView
+        android:id="@+id/imageView3"
+        android:layout_width="185dp"
+        android:layout_height="238dp"
+        android:layout_marginTop="76dp"
+        android:src="@drawable/circle"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="126dp"
+        android:layout_height="68dp"
+        android:layout_marginTop="164dp"
+        android:src="@drawable/iotlogo"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.519"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:background="@drawable/whitebg"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView3"
+        app:layout_constraintVertical_bias="0.207">
+
+        <EditText
+            android:id="@+id/editTextText_username"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/edittext_white"
+            android:ems="10"
+            android:hint="Họ Và Tên"
+            android:textColorHint="@color/gray"
+            android:inputType="textPersonName"
+            android:paddingStart="16dp"
+            android:textColor="@color/blue"
+            android:textSize="18sp" />
+
+        <EditText
+            android:id="@+id/editTextText_mail"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/edittext_white"
+            android:ems="10"
+            android:hint="Email"
+            android:textColorHint="@color/gray"
+            android:inputType="textEmailAddress"
+            android:paddingStart="16dp"
+            android:textColor="@color/blue"
+            android:textSize="18sp" />
+
+        <EditText
+            android:id="@+id/editTextText_phone"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/edittext_white"
+            android:ems="10"
+            android:hint="Số Điện Thoại"
+            android:textColorHint="@color/gray"
+            android:inputType="textPhonetic"
+            android:paddingStart="16dp"
+            android:textColor="@color/blue"
+            android:textSize="18sp" />
+
+         <EditText
+            android:id="@+id/editTextText_password"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/edittext_white"
+            android:ems="10"
+            android:hint="Mật Khẩu"
+            android:textColorHint="@color/gray"
+            android:inputType="textPassword"
+            android:paddingStart="16dp"
+            android:textColor="@color/blue"
+            android:textSize="18sp" />
+
+        <Button
+            android:id="@+id/widget_register_button"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginBottom="32dp"
+            android:background="@drawable/button"
+            android:text="Đăng Ký"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="36dp"
+        android:layout_marginBottom="36dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout2"
+        app:layout_constraintVertical_bias="1.0">
+
+        <TextView
+            android:id="@+id/textView5"
+            android:layout_width="140dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="10dp"
+            android:text="Đã có tài khoản?"
+            android:textColor="@color/white" />
+
+        <TextView
+            android:id="@+id/textlogin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="16dp"
+            android:text="Đăng Nhập Ngay!"
+            android:textColor="@color/white"
+            android:textStyle="bold" />
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

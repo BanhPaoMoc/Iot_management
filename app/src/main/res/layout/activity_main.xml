@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".Activity.MainActivity">
+
+        <FrameLayout
+            android:id="@+id/frameLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <com.google.android.material.bottomappbar.BottomAppBar
+            android:id="@+id/bottomApp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:backgroundTint="#363738"
+            app:fabCradleMargin="8dp"
+            app:fabCradleRoundedCornerRadius="40dp"
+            app:hideOnScroll="false">
+
+                <com.google.android.material.bottomnavigation.BottomNavigationView
+                    android:id="@+id/bottomNavigationView"
+                    android:layout_width="match_parent"
+                    android:layout_height="70dp"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginEnd="15dp"
+                    app:elevation="0dp"
+                    android:background="@android:color/transparent"
+                    app:itemIconTint="@color/custom_color_bottom_navigation"
+                    app:itemPaddingBottom="20dp"
+                    app:itemTextAppearanceActive="@style/BottomNavigationView"
+                    app:itemTextAppearanceInactive="@style/BottomNavigationView"
+                    app:itemTextColor="@color/custom_color_bottom_navigation"
+                    app:labelVisibilityMode="labeled"
+                    app:menu="@menu/bottom_menu" />
+
+        </com.google.android.material.bottomappbar.BottomAppBar>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/btn_add"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/blue"
+            android:contentDescription="@string/add"
+            android:src="@drawable/add"
+            app:tint="@color/white"
+            app:borderWidth="0dp"
+            app:backgroundTint="@color/blue"
+            app:layout_anchor="@id/bottomApp"
+            app:maxImageSize="30dp" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
