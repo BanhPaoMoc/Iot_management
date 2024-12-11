@@ -22,7 +22,7 @@ import com.google.firebase.auth.FirebaseAuth;
 public class loginActivity extends AppCompatActivity {
     EditText editTextText_mail, editTextText_password;
     Button widget_login_button;
-    TextView registertext;
+    TextView registertext,forgetPasswordText;
     FirebaseAuth fAuth;
 
     @Override
@@ -35,6 +35,7 @@ public class loginActivity extends AppCompatActivity {
         fAuth = FirebaseAuth.getInstance();
         widget_login_button = findViewById(R.id.widget_login_button);
         registertext = findViewById(R.id.registertext);
+        forgetPasswordText = findViewById(R.id.forgetPasswordText);
 
         widget_login_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -87,5 +88,15 @@ public class loginActivity extends AppCompatActivity {
                 startActivity(new Intent(getApplicationContext(), registerActivity.class));
             }
         });
+
+        // Set OnClickListener for the forgot password text view
+        forgetPasswordText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Navigate to the ForgetPassActivity
+                startActivity(new Intent(getApplicationContext(), ForgetPasswordActivity.class));
+            }
+        });
+
     }
 }

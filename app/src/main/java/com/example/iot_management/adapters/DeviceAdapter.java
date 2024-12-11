@@ -105,26 +105,40 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.DeviceView
     public void onBindViewHolder(@NonNull DeviceViewHolder holder, int position) {
         Device device = deviceList.get(position);
 
+        // Hiển thị ID thiết bị
         holder.tvDeviceId.setText(device.getId());
 
         if (device.getType().equals("led")) {
+            // Hiển thị trạng thái LED
             holder.tvState.setText("State: " + (device.isState() ? "ON" : "OFF"));
             holder.btnToggleState.setVisibility(View.VISIBLE);
+
+            // Thiết lập sự kiện click cho nút điều khiển LED
             holder.btnToggleState.setOnClickListener(v -> {
-                device.setState(!device.isState());
-                notifyDataSetChanged(); // Cập nhật lại RecyclerView sau khi thay đổi trạng thái LED
+                device.setState(!device.isState()); // Đảo trạng thái
+                notifyItemChanged(position); // Cập nhật lại item chỉ thay đổi
             });
+
+            // Ẩn các thông tin không liên quan đến LED
             holder.tvTemperature.setVisibility(View.GONE);
             holder.tvHumidity.setVisibility(View.GONE);
             holder.tvGasLevel.setVisibility(View.GONE);
+
         } else if (device.getType().equals("dht")) {
+            // Hiển thị nhiệt độ và độ ẩm
             holder.tvTemperature.setText("Temperature: " + device.getTemperature() + "°C");
             holder.tvHumidity.setText("Humidity: " + device.getHumidity() + "%");
+
+            // Ẩn các thông tin không liên quan đến DHT
             holder.tvState.setVisibility(View.GONE);
             holder.btnToggleState.setVisibility(View.GONE);
             holder.tvGasLevel.setVisibility(View.GONE);
+
         } else if (device.getType().equals("gas_sensor")) {
+            // Hiển thị mức gas
             holder.tvGasLevel.setText("Gas Level: " + device.getGasLevel());
+
+            // Ẩn các thông tin không liên quan đến Gas Sensor
             holder.tvState.setVisibility(View.GONE);
             holder.btnToggleState.setVisibility(View.GONE);
             holder.tvTemperature.setVisibility(View.GONE);

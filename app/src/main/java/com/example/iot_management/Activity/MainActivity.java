@@ -1,5 +1,6 @@
 package com.example.iot_management.Activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -25,6 +26,7 @@ import com.example.iot_management.models.Room;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -50,6 +52,19 @@ public class MainActivity extends AppCompatActivity {
 
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
         btnAdd = findViewById(R.id.btn_add);
+
+        // Kiểm tra người dùng đã đăng nhập chưa
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            // Nếu người dùng chưa đăng nhập, chuyển hướng tới màn hình đăng nhập
+            Intent intent = new Intent(MainActivity.this, loginActivity.class);
+            startActivity(intent);
+            finish(); // Đóng MainActivity để không quay lại được
+            return; // Dừng tiếp tục thực thi code còn lại
+        }
+
+        // Nếu người dùng đã đăng nhập, lấy thông tin user ID
+        currentUserId = user.getUid();
 
         // Set Home Fragment as default
         getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout, new HomeFragment()).commit();
@@ -77,8 +92,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Get current user id
-        currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         // Initialize the Firebase database reference
         databaseReference = FirebaseDatabase.getInstance()
                 .getReference("Users")
@@ -88,7 +101,6 @@ public class MainActivity extends AppCompatActivity {
         // Set up the Floating Action Button click listener
         btnAdd.setOnClickListener(v -> showAddRoomDialog());
     }
-
     private void showAddRoomDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         LayoutInflater inflater = LayoutInflater.from(MainActivity.this);

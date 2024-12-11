@@ -141,11 +141,13 @@
 package com.example.iot_management.Activity;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -224,7 +226,9 @@ public class RoomDetail extends AppCompatActivity {
                 deviceList.clear();  // Clear the old list
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     Device device = snapshot.getValue(Device.class);
-                    deviceList.add(device);
+                    if (device != null) {
+                        deviceList.add(device);
+                    }
                 }
                 deviceAdapter.notifyDataSetChanged();  // Update the UI with new device list
             }
@@ -238,36 +242,52 @@ public class RoomDetail extends AppCompatActivity {
 
     // Check if the device exists in the Devices reference in Firebase
     private void checkDeviceExistence(String deviceId) {
+        // Lấy tham chiếu đến bảng Devices
         devicesReference.child(deviceId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
-                    // If the device exists, retrieve its data and add it to the room
+                    // Lấy toàn bộ đối tượng Device
                     Device existingDevice = dataSnapshot.getValue(Device.class);
-                    addDeviceToRoom(existingDevice); // Add device to the room
+
+                    if (existingDevice != null) {
+                        // Sử dụng đối tượng Device đã lấy được
+                        addDeviceToRoom(existingDevice);  // Thêm thiết bị vào phòng
+                    } else {
+                        Toast.makeText(RoomDetail.this, "Không thể lấy dữ liệu thiết bị", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
-                    // If the device doesn't exist in the database
                     Toast.makeText(RoomDetail.this, "Thiết bị không tồn tại trong cơ sở dữ liệu", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
+            public void onCancelled(@NonNull DatabaseError databaseError) {
                 Toast.makeText(RoomDetail.this, "Lỗi khi kiểm tra thiết bị", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
+
     // Add the device to the user's room
     private void addDeviceToRoom(Device existingDevice) {
-        String deviceId = existingDevice.getId();  // Get the device ID
-        databaseReference.child(deviceId).setValue(existingDevice)  // Add the device to the room
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        Toast.makeText(RoomDetail.this, "Thêm thiết bị thành công", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(RoomDetail.this, "Lỗi khi thêm thiết bị", Toast.LENGTH_SHORT).show();
-                    }
-                });
+        // Lấy tham chiếu đến phòng cụ thể và thiết bị của phòng
+        DatabaseReference roomDevicesReference = FirebaseDatabase.getInstance()
+                .getReference("Users")
+                .child(room.getUserId())  // ID người dùng của phòng
+                .child("rooms")
+                .child(room.getId())  // ID phòng
+                .child("devices");
+
+        // Lưu thiết bị vào phòng
+        roomDevicesReference.child(existingDevice.getId()).setValue(existingDevice).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                // Hiển thị thông báo khi thêm thiết bị vào phòng thành công
+                Toast.makeText(RoomDetail.this, "Thêm thiết bị vào phòng thành công", Toast.LENGTH_SHORT).show();
+            } else {
+                // Thông báo khi thêm thiết bị vào phòng thất bại
+                Toast.makeText(RoomDetail.this, "Lỗi khi thêm thiết bị vào phòng", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

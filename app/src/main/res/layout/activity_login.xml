@@ -95,7 +95,7 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/forget_pass"
+        android:id="@+id/forgetPasswordText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
@@ -116,7 +116,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/forget_pass"
+        app:layout_constraintTop_toBottomOf="@+id/forgetPasswordText"
         app:layout_constraintVertical_bias="0.682">
 
         <TextView
