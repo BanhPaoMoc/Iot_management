@@ -63,6 +63,7 @@
             android:layout_marginBottom="20dp"
             android:background="@drawable/edittext_white"
             android:hint="Nhập email để xác nhận"
+            android:textcolor="@color/gray"
             android:inputType="textEmailAddress"
             android:padding="12dp"
             android:textColorHint="@color/gray" />
