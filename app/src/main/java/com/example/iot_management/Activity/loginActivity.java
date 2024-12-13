@@ -64,9 +64,15 @@ public class loginActivity extends AppCompatActivity {
                             Toast.makeText(loginActivity.this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
 
                             // Lưu trạng thái đăng nhập
-                            SharedPreferences sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+//                            SharedPreferences sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+//                            SharedPreferences.Editor editor = sharedPreferences.edit();
+//                            editor.putBoolean("isLoggedIn", true);
+//                            editor.apply();
+
+                            SharedPreferences sharedPreferences = getSharedPreferences("LoginPrefs", MODE_PRIVATE);
                             SharedPreferences.Editor editor = sharedPreferences.edit();
                             editor.putBoolean("isLoggedIn", true);
+                            editor.putString("userId", FirebaseAuth.getInstance().getCurrentUser().getUid());
                             editor.apply();
 
                             // Chuyển đến MainActivity

@@ -1,161 +1,31 @@
-//package com.example.iot_management.Activity;
-//
-//import android.os.Bundle;
-//import android.widget.Button;
-//import android.widget.EditText;
-//import android.widget.TextView;
-//import android.widget.Toast;
-//
-//import androidx.appcompat.app.AppCompatActivity;
-//import androidx.recyclerview.widget.LinearLayoutManager;
-//import androidx.recyclerview.widget.RecyclerView;
-//
-//import com.example.iot_management.R;
-//import com.example.iot_management.adapters.DeviceAdapter;
-//import com.example.iot_management.models.Device;
-//import com.example.iot_management.models.Room;
-//import com.google.firebase.database.DataSnapshot;
-//import com.google.firebase.database.DatabaseError;
-//import com.google.firebase.database.DatabaseReference;
-//import com.google.firebase.database.FirebaseDatabase;
-//import com.google.firebase.database.ValueEventListener;
-//
-//import java.util.ArrayList;
-//import java.util.List;
-//
-//public class RoomDetail extends AppCompatActivity {
-//    private RecyclerView rvDevices;
-//    private EditText edtDeviceId;
-//    private Button btnAddDevice;
-//    private TextView tvRoomNameDetails;
-//
-//    private Room room;
-//    private DatabaseReference databaseReference, devicesReference;
-//    private List<Device> deviceList;
-//    private DeviceAdapter deviceAdapter;
-//
-//    @Override
-//    protected void onCreate(Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_room_detail);
-//
-//        if (getIntent() != null && getIntent().hasExtra("room")) {
-//            room = (Room) getIntent().getSerializableExtra("room");
-//        }
-//
-//        databaseReference = FirebaseDatabase.getInstance()
-//                .getReference("Users")
-//                .child(room.getUserId())
-//                .child("rooms")
-//                .child(room.getId())
-//                .child("devices");
-//
-//        devicesReference = FirebaseDatabase.getInstance().getReference("Devices");
-//
-//        rvDevices = findViewById(R.id.rvDevices);
-//        edtDeviceId = findViewById(R.id.edtDeviceId);
-//        btnAddDevice = findViewById(R.id.btnAddDevice);
-//        tvRoomNameDetails = findViewById(R.id.tvroomNameDetails);
-//
-//        tvRoomNameDetails.setText(room.getName());
-//
-//        rvDevices.setLayoutManager(new LinearLayoutManager(this));
-//        deviceList = new ArrayList<>();
-//        deviceAdapter = new DeviceAdapter(deviceList);
-//        rvDevices.setAdapter(deviceAdapter);
-//
-//        btnAddDevice.setOnClickListener(v -> {
-//            String deviceId = edtDeviceId.getText().toString();
-//            if (!deviceId.isEmpty()) {
-//                checkDeviceExistence(deviceId);
-//            } else {
-//                Toast.makeText(RoomDetail.this, "Vui lòng nhập ID thiết bị", Toast.LENGTH_SHORT).show();
-//            }
-//        });
-//
-//        btnAddDevice.setOnClickListener(v -> {
-//            String deviceId = edtDeviceId.getText().toString();
-//            if (!deviceId.isEmpty()) {
-//                checkDeviceExistence(deviceId);
-//            } else {
-//                Toast.makeText(RoomDetail.this, "Vui lòng nhập ID thiết bị", Toast.LENGTH_SHORT).show();
-//            }
-//        });
-//
-//        // Lắng nghe thay đổi từ Firebase để cập nhật danh sách thiết bị trong phòng
-//        databaseReference.addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                deviceList.clear();  // Xóa danh sách cũ
-//                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-//                    Device device = snapshot.getValue(Device.class);
-//                    deviceList.add(device);
-//                }
-//                deviceAdapter.notifyDataSetChanged();  // Cập nhật lại UI
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//                Toast.makeText(RoomDetail.this, "Lỗi khi lấy dữ liệu", Toast.LENGTH_SHORT).show();
-//            }
-//        });
-//    }
-//
-//    // Kiểm tra sự tồn tại của thiết bị trong database
-//    private void checkDeviceExistence(String deviceId) {
-//        devicesReference.child(deviceId).addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                if (dataSnapshot.exists()) {
-//                    // Nếu thiết bị đã tồn tại, lấy thông tin và thêm vào phòng
-//                    Device existingDevice = dataSnapshot.getValue(Device.class);
-//                    addDeviceToRoom(existingDevice);
-//                } else {
-//                    // Nếu thiết bị không tồn tại
-//                    Toast.makeText(RoomDetail.this, "Thiết bị không tồn tại trong cơ sở dữ liệu", Toast.LENGTH_SHORT).show();
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//                Toast.makeText(RoomDetail.this, "Lỗi khi kiểm tra thiết bị", Toast.LENGTH_SHORT).show();
-//            }
-//        });
-//    }
-//
-//    // Thêm thiết bị vào phòng người dùng
-//    private void addDeviceToRoom(Device existingDevice) {
-//        String deviceId = existingDevice.getId();  // ID thiết bị
-//        databaseReference.child(deviceId).setValue(existingDevice)  // Thêm thiết bị vào phòng
-//                .addOnCompleteListener(task -> {
-//                    if (task.isSuccessful()) {
-//                        Toast.makeText(RoomDetail.this, "Thêm thiết bị thành công", Toast.LENGTH_SHORT).show();
-//                    } else {
-//                        Toast.makeText(RoomDetail.this, "Lỗi khi thêm thiết bị", Toast.LENGTH_SHORT).show();
-//                    }
-//                });
-//    }
-//}
-
 
 package com.example.iot_management.Activity;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.iot_management.R;
 import com.example.iot_management.adapters.DeviceAdapter;
+import com.example.iot_management.adapters.DhtAdapter;
+import com.example.iot_management.adapters.GasLevelAdapter;
+import com.example.iot_management.adapters.LedAdapter;
 import com.example.iot_management.models.Device;
+import com.example.iot_management.models.Dht;
+import com.example.iot_management.models.GasLevel;
+import com.example.iot_management.models.Led;
 import com.example.iot_management.models.Room;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
@@ -164,110 +34,266 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RoomDetail extends AppCompatActivity {
-    private RecyclerView rvDevices;
+    private RecyclerView rvDhts,rvGasLevels, rvLeds;
     private EditText edtDeviceId;
-    private Button btnAddDevice;
+    private Button btnCheckDevice;
     private TextView tvRoomNameDetails;
 
     private Room room;
-    private DatabaseReference databaseReference, devicesReference;
+    private DatabaseReference databaseReference, dhtsReference, gasLevelsReference, ledsReference;
     private List<Device> deviceList;
     private DeviceAdapter deviceAdapter;
+    private DhtAdapter dhtAdapter;
+    private GasLevelAdapter gasLevelAdapter;
+    private LedAdapter ledAdapter;
+    private ArrayList<Dht> dhtList;
+    private ArrayList<GasLevel> gasLevelList;
+    private ArrayList<Led> ledList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_room_detail);
 
-        // Retrieve room data from Intent
-        if (getIntent() != null && getIntent().hasExtra("room")) {
-            room = (Room) getIntent().getSerializableExtra("room");
+
+        try {
+
+            if (getIntent() != null && getIntent().hasExtra("room")) {
+                room = (Room) getIntent().getSerializableExtra("room");
+                Toast.makeText(this, "Room" + room, Toast.LENGTH_SHORT).show();
+                if (room != null) {
+                    Log.d("RoomDetail", "Room data: " + room.getName());
+                } else {
+                    Log.e("RoomDetail", "Room data is null");
+                    Toast.makeText(this, "Không nhận được dữ liệu phòng", Toast.LENGTH_SHORT).show();
+                    finish(); // Đóng Activity nếu không có dữ liệu
+                }
+            } else {
+                Log.e("RoomDetail", "Intent không chứa dữ liệu phòng");
+                Toast.makeText(this, "Không nhận được dữ liệu phòng", Toast.LENGTH_SHORT).show();
+                finish();
+            }
+
+
+//            try {
+//                // Firebase references
+//                if (room != null) {
+//                    databaseReference = FirebaseDatabase.getInstance()
+//                            .getReference("Users")
+//                            .child(room.getUserId())
+//                            .child("rooms")
+//                            .child(room.getId());
+////                            .child("devices");
+//                } else {
+//                    Log.e("RoomDetail", "room is null");
+//                }
+//            } catch (Exception e) {
+//                Log.e("RoomDetail", "Error " + e);
+//            }
+
+
+            dhtsReference = FirebaseDatabase.getInstance().getReference("Devices").child("Dht");
+            gasLevelsReference = FirebaseDatabase.getInstance().getReference("Devices").child("GasLevel");
+            ledsReference = FirebaseDatabase.getInstance().getReference("Devices").child("Leds");
+
+
+            // Initialize UI elements
+            edtDeviceId = findViewById(R.id.edtDeviceId);
+            tvRoomNameDetails = findViewById(R.id.tvroomNameDetails);
+            // Initialize UI elements
+
+            rvDhts = findViewById(R.id.rvDhts);
+            rvGasLevels = findViewById(R.id.rvGasLevels);
+            rvLeds = findViewById(R.id.rvLeds);
+            edtDeviceId = findViewById(R.id.edtDeviceId);
+            btnCheckDevice = findViewById(R.id.btnCheckDevice);
+            tvRoomNameDetails = findViewById(R.id.tvroomNameDetails);
+
+            rvDhts.setLayoutManager(new LinearLayoutManager(this));
+            rvGasLevels.setLayoutManager(new LinearLayoutManager(this));
+            rvLeds.setLayoutManager(new LinearLayoutManager(this));
+
+            dhtList = new ArrayList<>();
+            gasLevelList = new ArrayList<>();
+            ledList = new ArrayList<>();
+
+            dhtAdapter = new DhtAdapter(dhtList);
+            gasLevelAdapter = new GasLevelAdapter(gasLevelList);
+            ledAdapter = new LedAdapter(ledList);
+
+            tvRoomNameDetails.setText(room.getName());
+
+            deviceList = new ArrayList<>();
+            deviceAdapter = new DeviceAdapter(deviceList);
+
+            // Button click listener for adding a device
+            btnCheckDevice.setOnClickListener(v -> {
+                String deviceId = edtDeviceId.getText().toString().trim();
+                if (!deviceId.isEmpty()) {
+                    checkDeviceExistence(deviceId);
+                } else {
+                    Toast.makeText(RoomDetail.this, "Vui lòng nhập ID thiết bị", Toast.LENGTH_SHORT).show();
+                }
+            });
+            // Load devices data
+            loadRoomDevices();
+            loadDhts();
+            loadGasLevels();
+            loadLeds();
+        } catch (DatabaseException dbEx) {
+            Log.e("DatabaseError", "Error parsing data: " + dbEx.getMessage());
+        } catch (Exception ex) {
+            Log.e("GeneralError", "Unexpected error: " + ex.getMessage());
         }
 
-        // Firebase references
-        databaseReference = FirebaseDatabase.getInstance()
-                .getReference("Users")
-                .child(room.getUserId())
-                .child("rooms")
-                .child(room.getId())
-                .child("devices");
 
-        devicesReference = FirebaseDatabase.getInstance().getReference("Devices");
+    }
 
-        // Initialize UI elements
-        rvDevices = findViewById(R.id.rvDevices);
-        edtDeviceId = findViewById(R.id.edtDeviceId);
-        btnAddDevice = findViewById(R.id.btnAddDevice);
-        tvRoomNameDetails = findViewById(R.id.tvroomNameDetails);
+    private void checkDeviceExistence(String deviceId) {
+        // Kiểm tra trong bảng Dht
+        dhtsReference.child(deviceId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    Dht dht = snapshot.getValue(Dht.class);
+                    if (dht != null) {
+                        dhtList.add(dht);
+                        dhtAdapter.notifyDataSetChanged();
+                        Toast.makeText(RoomDetail.this, "Thiết bị DHT đã được thêm", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    // Nếu không tìm thấy trong Dht, kiểm tra GasLevel
+                    gasLevelsReference.child(deviceId).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            if (snapshot.exists()) {
+                                GasLevel gasLevel = snapshot.getValue(GasLevel.class);
+                                if (gasLevel != null) {
+                                    gasLevelList.add(gasLevel);
+                                    gasLevelAdapter.notifyDataSetChanged();
+                                    Toast.makeText(RoomDetail.this, "Thiết bị Gas Level đã được thêm", Toast.LENGTH_SHORT).show();
+                                }
+                            } else {
+                                // Nếu không tìm thấy trong GasLevel, kiểm tra Leds
+                                ledsReference.child(deviceId).addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                        if (snapshot.exists()) {
+                                            Led led = snapshot.getValue(Led.class);
+                                            if (led != null) {
+                                                ledList.add(led);
+                                                ledAdapter.notifyDataSetChanged();
+                                                Toast.makeText(RoomDetail.this, "Thiết bị LED đã được thêm", Toast.LENGTH_SHORT).show();
+                                            }
+                                        } else {
+                                            // Không tìm thấy trong bất kỳ bảng nào
+                                            Toast.makeText(RoomDetail.this, "Thiết bị không tồn tại trong bất kỳ bảng nào", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
 
-        tvRoomNameDetails.setText(room.getName());
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError error) {
+                                        Toast.makeText(RoomDetail.this, "Lỗi kiểm tra thiết bị trong bảng Leds", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
+                        }
 
-        rvDevices.setLayoutManager(new LinearLayoutManager(this));
-        deviceList = new ArrayList<>();
-        deviceAdapter = new DeviceAdapter(deviceList);
-        rvDevices.setAdapter(deviceAdapter);
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                            Toast.makeText(RoomDetail.this, "Lỗi kiểm tra thiết bị trong bảng Gas Levels", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            }
 
-        // Button click listener for adding a device
-        btnAddDevice.setOnClickListener(v -> {
-            String deviceId = edtDeviceId.getText().toString();
-            if (!deviceId.isEmpty()) {
-                checkDeviceExistence(deviceId); // Check if the device exists
-            } else {
-                Toast.makeText(RoomDetail.this, "Vui lòng nhập ID thiết bị", Toast.LENGTH_SHORT).show();
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(RoomDetail.this, "Lỗi kiểm tra thiết bị trong bảng DHT", Toast.LENGTH_SHORT).show();
             }
         });
+    }
 
-        // Listen for changes in the room's devices data from Firebase
+    private void loadRoomDevices() {
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                deviceList.clear();  // Clear the old list
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                deviceList.clear();
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     Device device = snapshot.getValue(Device.class);
-                    deviceList.add(device);
-                }
-                deviceAdapter.notifyDataSetChanged();  // Update the UI with new device list
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Toast.makeText(RoomDetail.this, "Lỗi khi lấy dữ liệu", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    // Check if the device exists in the Devices reference in Firebase
-    private void checkDeviceExistence(String deviceId) {
-        devicesReference.child(deviceId).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    // If the device exists, retrieve its data and add it to the room
-                    Device existingDevice = dataSnapshot.getValue(Device.class);
-                    addDeviceToRoom(existingDevice); // Add device to the room
-                } else {
-                    // If the device doesn't exist in the database
-                    Toast.makeText(RoomDetail.this, "Thiết bị không tồn tại trong cơ sở dữ liệu", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Toast.makeText(RoomDetail.this, "Lỗi khi kiểm tra thiết bị", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    // Add the device to the user's room
-    private void addDeviceToRoom(Device existingDevice) {
-        String deviceId = existingDevice.getId();  // Get the device ID
-        databaseReference.child(deviceId).setValue(existingDevice)  // Add the device to the room
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        Toast.makeText(RoomDetail.this, "Thêm thiết bị thành công", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(RoomDetail.this, "Lỗi khi thêm thiết bị", Toast.LENGTH_SHORT).show();
+                    if (device != null) {
+                        deviceList.add(device);
                     }
-                });
+                }
+                deviceAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(RoomDetail.this, "Lỗi khi tải dữ liệu thiết bị", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+    private void loadDhts() {
+        dhtsReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                dhtList.clear();
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    Dht dht = snapshot.getValue(Dht.class);
+                    if (dht != null) {
+                        dhtList.add(dht);
+                    }
+                }
+                dhtAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(RoomDetail.this, "Lỗi khi tải dữ liệu DHT", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void loadGasLevels() {
+        gasLevelsReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                gasLevelList.clear();
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    GasLevel gasLevel = snapshot.getValue(GasLevel.class);
+                    if (gasLevel != null) {
+                        gasLevelList.add(gasLevel);
+                    }
+                }
+                gasLevelAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(RoomDetail.this, "Lỗi khi tải dữ liệu Gas Level", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void loadLeds() {
+        ledsReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                ledList.clear();
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    Led led = snapshot.getValue(Led.class);
+                    if (led != null) {
+                        ledList.add(led);
+                    }
+                }
+                ledAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(RoomDetail.this, "Lỗi khi tải dữ liệu LED", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

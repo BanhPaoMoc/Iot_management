@@ -1,6 +1,7 @@
 package com.example.iot_management.Fragment;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.iot_management.R;
 import com.example.iot_management.adapters.RoomAdapter;
+import com.example.iot_management.models.Device;
 import com.example.iot_management.models.Room;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -22,7 +24,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class HomeFragment extends Fragment {
 
@@ -66,20 +70,29 @@ public class HomeFragment extends Fragment {
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                roomList.clear();
+                roomList.clear(); // Xóa danh sách cũ
+
                 for (DataSnapshot roomSnapshot : snapshot.getChildren()) {
-                    Room room = roomSnapshot.getValue(Room.class);
-                    if (room != null) {
-                        roomList.add(room);
+                    try {
+                        // Chuyển đổi dữ liệu từ Firebase thành đối tượng Room
+                        Room room = roomSnapshot.getValue(Room.class);
+                        if (room != null) {
+                            roomList.add(room);
+                        }
+                    } catch (Exception e) {
+                        Log.e("HomeFragment", "Error parsing room data", e);
                     }
                 }
+
+                // Cập nhật giao diện RecyclerView
                 roomAdapter.notifyDataSetChanged();
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(getContext(), "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Lỗi khi tải danh sách phòng: " + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
+
 }

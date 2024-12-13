@@ -1,5 +1,7 @@
 package com.example.iot_management.Activity;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -25,6 +27,7 @@ import com.example.iot_management.models.Room;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -54,6 +57,27 @@ public class MainActivity extends AppCompatActivity {
         // Set Home Fragment as default
         getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout, new HomeFragment()).commit();
 
+
+        // Check login status from SharedPreferences
+        SharedPreferences sharedPreferences = getSharedPreferences("LoginPrefs", MODE_PRIVATE);
+        boolean isLoggedIn = sharedPreferences.getBoolean("isLoggedIn", false);
+
+        if (!isLoggedIn) {
+            // Redirect to loginActivity if not logged in
+            Intent intent = new Intent(MainActivity.this, loginActivity.class);
+            startActivity(intent);
+            finish();
+            return; // Prevent further initialization
+        }
+
+        // If logged in, retrieve user ID
+        currentUserId = sharedPreferences.getString("userId", "");
+        databaseReference = FirebaseDatabase.getInstance()
+                .getReference("Users")
+                .child(currentUserId)
+                .child("rooms");
+
+
         // Sự kiện click cho Bottom Navigation
         bottomNavigationView.setOnItemSelectedListener(new BottomNavigationView.OnItemSelectedListener() {
             @Override
@@ -77,13 +101,22 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Get current user id
-        currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        // Initialize the Firebase database reference
-        databaseReference = FirebaseDatabase.getInstance()
-                .getReference("Users")
-                .child(currentUserId)
-                .child("rooms");
+//        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+//        FirebaseUser currenUser = mAuth.getCurrentUser();
+//
+//        if (currenUser == null) {
+//            Intent intent = new Intent(MainActivity.this, loginActivity.class);
+//            startActivity(intent);
+//            finish();
+//        } else {
+//            // Get current user id
+//            currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+//            // Initialize the Firebase database reference
+//            databaseReference = FirebaseDatabase.getInstance()
+//                    .getReference("Users")
+//                    .child(currentUserId)
+//                    .child("rooms");
+//        }
 
         // Set up the Floating Action Button click listener
         btnAdd.setOnClickListener(v -> showAddRoomDialog());
@@ -146,3 +179,4 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 }
+

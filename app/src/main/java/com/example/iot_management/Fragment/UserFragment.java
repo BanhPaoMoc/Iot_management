@@ -1,6 +1,9 @@
 package com.example.iot_management.Fragment;
 
+import static android.content.Context.MODE_PRIVATE;
+
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,6 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.iot_management.Activity.MainActivity;
 import com.example.iot_management.Activity.loginActivity;
 import com.example.iot_management.R;
 import com.google.firebase.auth.FirebaseAuth;
@@ -79,6 +83,11 @@ public class UserFragment extends Fragment {
             // Đăng xuất người dùng khỏi Firebase
             FirebaseAuth.getInstance().signOut();
 
+            SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("LoginPrefs", MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.clear(); // Clear all stored data
+            editor.apply();
+
             // Chuyển hướng về màn hình đăng nhập
             Intent intent = new Intent(getActivity(), loginActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -86,6 +95,9 @@ public class UserFragment extends Fragment {
 
             // Kết thúc hoạt động hiện tại
             getActivity().finish();
+
+
+
         });
 
         return view;
