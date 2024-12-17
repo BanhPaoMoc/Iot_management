@@ -108,7 +108,9 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.RoomViewHolder
         // Xử lý sự kiện click vào item để chuyển tới RoomDetailActivity
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, RoomDetail.class);
-            intent.putExtra("room", room);  // Truyền đối tượng Room vào Intent
+            intent.putExtra("roomId", room.getId());          // Truyền roomId
+            intent.putExtra("room", room);                   // Truyền đối tượng Room (nếu cần)
+            intent.putExtra("currentUserId", room.getUserId()); // Truyền currentUserId
             context.startActivity(intent);
         });
     }

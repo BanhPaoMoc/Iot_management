@@ -1,6 +1,10 @@
 
 package com.example.iot_management.Activity;
 
+import static android.content.ContentValues.TAG;
+
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -31,7 +35,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.ResourceBundle;
 
 public class RoomDetail extends AppCompatActivity {
     private RecyclerView rvDhts,rvGasLevels, rvLeds;
@@ -50,46 +57,70 @@ public class RoomDetail extends AppCompatActivity {
     private ArrayList<GasLevel> gasLevelList;
     private ArrayList<Led> ledList;
 
+    private String currentUserId, roomId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_room_detail);
 
 
+        // Nhận dữ liệu từ Intent
+        Intent intent = getIntent();
+        if (intent != null) {
+            if (intent.hasExtra("roomId")) {
+                roomId = intent.getStringExtra("roomId");
+            } else {
+                Log.e("RoomDetail", "roomId không được truyền qua Intent");
+            }
+
+            if (intent.hasExtra("currentUserId")) {
+                currentUserId = intent.getStringExtra("currentUserId");
+            } else {
+                Log.e("RoomDetail", "currentUserId không được truyền qua Intent");
+            }
+
+            if (intent.hasExtra("room")) {
+                room = (Room) intent.getSerializableExtra("room"); // Nếu cần đối tượng Room
+            }
+
+            // Log kiểm tra dữ liệu
+            Log.d("RoomDetail", "roomId: " + roomId);
+            Log.d("RoomDetail", "currentUserId: " + currentUserId);
+        } else {
+            Log.e("RoomDetail", "Intent không chứa dữ liệu");
+        }
+
+        if (roomId == null || roomId.isEmpty() || currentUserId == null || currentUserId.isEmpty()) {
+            Toast.makeText(this, "Không nhận được thông tin cần thiết", Toast.LENGTH_SHORT).show();
+            finish(); // Đóng Activity nếu thiếu dữ liệu
+        }
+
+
+
+        databaseReference = FirebaseDatabase.getInstance()
+                .getReference("Users")
+                .child(currentUserId)
+                .child("rooms");
+
         try {
 
             if (getIntent() != null && getIntent().hasExtra("room")) {
                 room = (Room) getIntent().getSerializableExtra("room");
-                Toast.makeText(this, "Room" + room, Toast.LENGTH_SHORT).show();
                 if (room != null) {
-                    Log.d("RoomDetail", "Room data: " + room.getName());
+                    Log.d("RoomDetail4", "Room data: " + room.getName());
+                    Toast.makeText(this, "Room: " + room.getName(), Toast.LENGTH_SHORT).show();
                 } else {
-                    Log.e("RoomDetail", "Room data is null");
+                    Log.e("RoomDetail5", "Room data is null");
                     Toast.makeText(this, "Không nhận được dữ liệu phòng", Toast.LENGTH_SHORT).show();
                     finish(); // Đóng Activity nếu không có dữ liệu
                 }
             } else {
-                Log.e("RoomDetail", "Intent không chứa dữ liệu phòng");
+                Log.e("RoomDetail6", "Intent không chứa dữ liệu phòng");
                 Toast.makeText(this, "Không nhận được dữ liệu phòng", Toast.LENGTH_SHORT).show();
                 finish();
             }
 
-
-//            try {
-//                // Firebase references
-//                if (room != null) {
-//                    databaseReference = FirebaseDatabase.getInstance()
-//                            .getReference("Users")
-//                            .child(room.getUserId())
-//                            .child("rooms")
-//                            .child(room.getId());
-////                            .child("devices");
-//                } else {
-//                    Log.e("RoomDetail", "room is null");
-//                }
-//            } catch (Exception e) {
-//                Log.e("RoomDetail", "Error " + e);
-//            }
 
 
             dhtsReference = FirebaseDatabase.getInstance().getReference("Devices").child("Dht");
@@ -130,13 +161,12 @@ public class RoomDetail extends AppCompatActivity {
             btnCheckDevice.setOnClickListener(v -> {
                 String deviceId = edtDeviceId.getText().toString().trim();
                 if (!deviceId.isEmpty()) {
-                    checkDeviceExistence(deviceId);
+                    checkDeviceExistence(roomId,deviceId);
                 } else {
                     Toast.makeText(RoomDetail.this, "Vui lòng nhập ID thiết bị", Toast.LENGTH_SHORT).show();
                 }
             });
             // Load devices data
-            loadRoomDevices();
             loadDhts();
             loadGasLevels();
             loadLeds();
@@ -149,7 +179,7 @@ public class RoomDetail extends AppCompatActivity {
 
     }
 
-    private void checkDeviceExistence(String deviceId) {
+    private void checkDeviceExistence(String roomId, String deviceId) {
         // Kiểm tra trong bảng Dht
         dhtsReference.child(deviceId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -159,6 +189,7 @@ public class RoomDetail extends AppCompatActivity {
                     if (dht != null) {
                         dhtList.add(dht);
                         dhtAdapter.notifyDataSetChanged();
+                        addDeviceToRoom(roomId, deviceId, "DHT", dht, null, null);
                         Toast.makeText(RoomDetail.this, "Thiết bị DHT đã được thêm", Toast.LENGTH_SHORT).show();
                     }
                 } else {
@@ -171,6 +202,7 @@ public class RoomDetail extends AppCompatActivity {
                                 if (gasLevel != null) {
                                     gasLevelList.add(gasLevel);
                                     gasLevelAdapter.notifyDataSetChanged();
+                                    addDeviceToRoom(roomId, deviceId, "GasLevel", null, null, gasLevel);
                                     Toast.makeText(RoomDetail.this, "Thiết bị Gas Level đã được thêm", Toast.LENGTH_SHORT).show();
                                 }
                             } else {
@@ -183,6 +215,8 @@ public class RoomDetail extends AppCompatActivity {
                                             if (led != null) {
                                                 ledList.add(led);
                                                 ledAdapter.notifyDataSetChanged();
+                                                addDeviceToRoom(roomId, deviceId, "LED", null, led, null);
+                                                Log.d("LEDHNE", "onDataChange: " + ledList);
                                                 Toast.makeText(RoomDetail.this, "Thiết bị LED đã được thêm", Toast.LENGTH_SHORT).show();
                                             }
                                         } else {
@@ -214,26 +248,43 @@ public class RoomDetail extends AppCompatActivity {
         });
     }
 
-    private void loadRoomDevices() {
-        databaseReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                deviceList.clear();
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    Device device = snapshot.getValue(Device.class);
-                    if (device != null) {
-                        deviceList.add(device);
-                    }
-                }
-                deviceAdapter.notifyDataSetChanged();
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(RoomDetail.this, "Lỗi khi tải dữ liệu thiết bị", Toast.LENGTH_SHORT).show();
-            }
-        });
+    private void addDeviceToRoom(String roomId, String deviceId, String deviceType, Dht dht, Led led, GasLevel gasLevel ) {
+
+        DatabaseReference roomDevicesRef = FirebaseDatabase.getInstance()
+                .getReference("Users")
+                .child(currentUserId) // ID User, có thể thay đổi theo người dùng đăng nhập
+                .child("rooms")
+                .child(roomId)
+                .child("devices")
+                .child(deviceId); // Tạo nhánh thiết bị
+
+        // Dữ liệu của thiết bị
+        Map<String, Object> deviceData = new HashMap<>();
+        deviceData.put("deviceId", deviceId);
+        deviceData.put("deviceType", deviceType);
+
+        if(deviceType == "LED") {
+            deviceData.put("state", led.isState());
+        } else if (deviceType == "DHT") {
+            deviceData.put("humidity", dht.getHumidity());
+            deviceData.put("temperature", dht.getTemperature());
+
+        } else if (deviceType == "GasLevel" ) {
+            deviceData.put("gas_sensor", gasLevel.getGas_sensor());
+        }
+
+        // Thêm thiết bị vào nhánh Firebase
+        roomDevicesRef.setValue(deviceData)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("FIREBASE", "Thiết bị đã được thêm vào phòng thành công.");
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("FIREBASE", "Lỗi khi thêm thiết bị vào phòng.", e);
+                });
     }
+
+
     private void loadDhts() {
         dhtsReference.addValueEventListener(new ValueEventListener() {
             @Override
