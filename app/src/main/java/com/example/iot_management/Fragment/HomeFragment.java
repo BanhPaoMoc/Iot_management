@@ -61,38 +61,75 @@ public class HomeFragment extends Fragment {
                 .child("rooms");
 
         // Load danh sách phòng từ Firebase
-        loadRooms();
+        loadRooms(currentUserId);
 
         return view;
     }
 
-    private void loadRooms() {
-        databaseReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                roomList.clear(); // Xóa danh sách cũ
+//    private void loadRooms() {
+//        databaseReference.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+////                roomList.clear(); // Xóa danh sách cũ
+//
+//                for (DataSnapshot roomSnapshot : snapshot.getChildren()) {
+//                    try {
+//                        // Chuyển đổi dữ liệu từ Firebase thành đối tượng Room
+//                        Room room = roomSnapshot.getValue(Room.class);
+//                        if (room != null) {
+//                            roomList.add(room);
+//                        }
+//                    } catch (Exception e) {
+//                        Log.e("HomeFragment", "Error parsing room data", e);
+//                    }
+//                }
+//
+//                // Cập nhật giao diện RecyclerView
+//                roomAdapter.notifyDataSetChanged();
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//                Toast.makeText(getContext(), "Lỗi khi tải danh sách phòng: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//    }
 
-                for (DataSnapshot roomSnapshot : snapshot.getChildren()) {
-                    try {
-                        // Chuyển đổi dữ liệu từ Firebase thành đối tượng Room
-                        Room room = roomSnapshot.getValue(Room.class);
-                        if (room != null) {
-                            roomList.add(room);
+    private void loadRooms(String userId) {
+        DatabaseReference roomsReference = FirebaseDatabase.getInstance()
+                .getReference("Users")
+                .child(userId)
+                .child("rooms");
+
+        roomsReference.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                roomList.clear(); // Xóa danh sách cũ trước khi thêm dữ liệu mới
+                DataSnapshot snapshot = task.getResult();
+                if (snapshot != null && snapshot.exists()) {
+                    Log.d("LoadRooms", "Number of rooms: " + snapshot.getChildrenCount()); // Log số phòng
+                    for (DataSnapshot roomSnapshot : snapshot.getChildren()) {
+                        try {
+                            // Chuyển đổi dữ liệu từ Firebase thành đối tượng Room
+                            Room room = roomSnapshot.getValue(Room.class);
+                            if (room != null) {
+                                roomList.add(room);
+                            }
+                        } catch (Exception e) {
+                            Log.e("LoadRooms", "Error parsing room data", e);
                         }
-                    } catch (Exception e) {
-                        Log.e("HomeFragment", "Error parsing room data", e);
                     }
+                    // Cập nhật giao diện RecyclerView
+                    roomAdapter.notifyDataSetChanged();
+                } else {
+                    Log.d("LoadRooms", "No rooms found for user: " + userId);
                 }
-
-                // Cập nhật giao diện RecyclerView
-                roomAdapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(getContext(), "Lỗi khi tải danh sách phòng: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+            } else {
+                Log.e("LoadRooms", "Error loading rooms: ", task.getException());
+                Toast.makeText(getContext(), "Lỗi khi tải danh sách phòng: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+
     }
+
 
 }

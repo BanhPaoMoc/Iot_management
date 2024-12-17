@@ -123,9 +123,24 @@ public class RoomDetail extends AppCompatActivity {
 
 
 
-            dhtsReference = FirebaseDatabase.getInstance().getReference("Devices").child("Dht");
-            gasLevelsReference = FirebaseDatabase.getInstance().getReference("Devices").child("GasLevel");
-            ledsReference = FirebaseDatabase.getInstance().getReference("Devices").child("Leds");
+            dhtsReference = FirebaseDatabase.getInstance().getReference("Users")
+                    .child(currentUserId)
+                    .child("rooms")
+                    .child(roomId)
+                    .child("devices")
+                    .child("DHT");;
+            gasLevelsReference = FirebaseDatabase.getInstance().getReference("Users")
+                    .child(currentUserId)
+                    .child("rooms")
+                    .child(roomId)
+                    .child("devices")
+                    .child("GasLevel");
+            ledsReference = FirebaseDatabase.getInstance().getReference("Users")
+                    .child(currentUserId)
+                    .child("rooms")
+                    .child(roomId)
+                    .child("devices")
+                    .child("LED ");
 
 
             // Initialize UI elements
@@ -256,7 +271,7 @@ public class RoomDetail extends AppCompatActivity {
                 .child(currentUserId) // ID User, có thể thay đổi theo người dùng đăng nhập
                 .child("rooms")
                 .child(roomId)
-                .child("devices")
+                .child("devices").child(deviceType)
                 .child(deviceId); // Tạo nhánh thiết bị
 
         // Dữ liệu của thiết bị
@@ -336,6 +351,7 @@ public class RoomDetail extends AppCompatActivity {
                     Led led = snapshot.getValue(Led.class);
                     if (led != null) {
                         ledList.add(led);
+                        Log.d("DUEMfe", "onDataChange: " + ledList);
                     }
                 }
                 ledAdapter.notifyDataSetChanged();

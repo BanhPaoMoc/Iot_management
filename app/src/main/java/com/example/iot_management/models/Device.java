@@ -16,6 +16,8 @@ public class Device implements Serializable {
 
     private ArrayList<Device> deviceId;
 
+    public Device() {
+    }
 
     // Constructor mặc định không tham số
     public Device(Object deviceData) {
