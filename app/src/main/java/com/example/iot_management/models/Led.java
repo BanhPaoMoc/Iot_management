@@ -2,7 +2,16 @@ package com.example.iot_management.models;
 
 public class Led {
     private String name;
+    private String deviceId;
     private boolean state;
+
+    public String getDeviceId() {
+        return deviceId;
+    }
+
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
+    }
 
     public String getName() {
         return name;
@@ -12,8 +21,9 @@ public class Led {
         this.name = name;
     }
 
-    public Led(String name, boolean state) {
+    public Led(String name, String deviceId, boolean state) {
         this.name = name;
+        this.deviceId = deviceId;
         this.state = state;
     }
 

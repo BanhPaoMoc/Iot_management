@@ -47,7 +47,7 @@ public class RoomDetail extends AppCompatActivity {
     private TextView tvRoomNameDetails;
 
     private Room room;
-    private DatabaseReference databaseReference, dhtsReference, gasLevelsReference, ledsReference;
+    private DatabaseReference databaseReference, dhtsReference, gasLevelsReference, ledsReference, ledsReferenceUser, dhtsReferenceUser, gasLevelsReferenceUser;
     private List<Device> deviceList;
     private DeviceAdapter deviceAdapter;
     private DhtAdapter dhtAdapter;
@@ -123,24 +123,32 @@ public class RoomDetail extends AppCompatActivity {
 
 
 
-            dhtsReference = FirebaseDatabase.getInstance().getReference("Users")
+            dhtsReference = FirebaseDatabase.getInstance().getReference("Devices")
+                    .child("Dht");
+            gasLevelsReference = FirebaseDatabase.getInstance().getReference("Devices")
+                    .child("GasLevel");
+            ledsReference = FirebaseDatabase.getInstance().getReference("Devices")
+                    .child("Leds");
+
+
+            dhtsReferenceUser = FirebaseDatabase.getInstance().getReference("Users")
                     .child(currentUserId)
                     .child("rooms")
                     .child(roomId)
                     .child("devices")
-                    .child("DHT");;
-            gasLevelsReference = FirebaseDatabase.getInstance().getReference("Users")
+                    .child("DHT");
+            gasLevelsReferenceUser = FirebaseDatabase.getInstance().getReference("Users")
                     .child(currentUserId)
                     .child("rooms")
                     .child(roomId)
                     .child("devices")
                     .child("GasLevel");
-            ledsReference = FirebaseDatabase.getInstance().getReference("Users")
+            ledsReferenceUser = FirebaseDatabase.getInstance().getReference("Users")
                     .child(currentUserId)
                     .child("rooms")
                     .child(roomId)
                     .child("devices")
-                    .child("LED ");
+                    .child("LED");
 
 
             // Initialize UI elements
@@ -155,17 +163,26 @@ public class RoomDetail extends AppCompatActivity {
             btnCheckDevice = findViewById(R.id.btnCheckDevice);
             tvRoomNameDetails = findViewById(R.id.tvroomNameDetails);
 
+
+// Khởi tạo danh sách
+            ledList = new ArrayList<>();
+            ledAdapter = new LedAdapter(ledList);
+
+            // Khởi tạo danh sách và adapter
+            dhtList = new ArrayList<>();
+            dhtAdapter = new DhtAdapter(dhtList);
+
+            // Khởi tạo danh sách và adapter
+            gasLevelList = new ArrayList<>();
+            gasLevelAdapter = new GasLevelAdapter(gasLevelList);
+
             rvDhts.setLayoutManager(new LinearLayoutManager(this));
             rvGasLevels.setLayoutManager(new LinearLayoutManager(this));
             rvLeds.setLayoutManager(new LinearLayoutManager(this));
 
-            dhtList = new ArrayList<>();
-            gasLevelList = new ArrayList<>();
-            ledList = new ArrayList<>();
-
-            dhtAdapter = new DhtAdapter(dhtList);
-            gasLevelAdapter = new GasLevelAdapter(gasLevelList);
-            ledAdapter = new LedAdapter(ledList);
+            rvDhts.setAdapter(dhtAdapter);
+            rvGasLevels.setAdapter(gasLevelAdapter);
+            rvLeds.setAdapter(ledAdapter);
 
             tvRoomNameDetails.setText(room.getName());
 
@@ -181,10 +198,12 @@ public class RoomDetail extends AppCompatActivity {
                     Toast.makeText(RoomDetail.this, "Vui lòng nhập ID thiết bị", Toast.LENGTH_SHORT).show();
                 }
             });
-            // Load devices data
-            loadDhts();
-            loadGasLevels();
-            loadLeds();
+
+
+// Lấy dữ liệu từ Firebase
+            loadDhtData();
+            loadGasLevelData();
+            loadLedData();
         } catch (DatabaseException dbEx) {
             Log.e("DatabaseError", "Error parsing data: " + dbEx.getMessage());
         } catch (Exception ex) {
@@ -300,13 +319,13 @@ public class RoomDetail extends AppCompatActivity {
     }
 
 
-    private void loadDhts() {
-        dhtsReference.addValueEventListener(new ValueEventListener() {
+    private void loadDhtData() {
+        dhtsReferenceUser.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
                 dhtList.clear();
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    Dht dht = snapshot.getValue(Dht.class);
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                    Dht dht = dataSnapshot.getValue(Dht.class);
                     if (dht != null) {
                         dhtList.add(dht);
                     }
@@ -316,18 +335,18 @@ public class RoomDetail extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(RoomDetail.this, "Lỗi khi tải dữ liệu DHT", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Failed to load DHT data: " + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    private void loadGasLevels() {
-        gasLevelsReference.addValueEventListener(new ValueEventListener() {
+    private void loadGasLevelData() {
+        gasLevelsReferenceUser.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
                 gasLevelList.clear();
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    GasLevel gasLevel = snapshot.getValue(GasLevel.class);
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                    GasLevel gasLevel = dataSnapshot.getValue(GasLevel.class);
                     if (gasLevel != null) {
                         gasLevelList.add(gasLevel);
                     }
@@ -337,21 +356,20 @@ public class RoomDetail extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(RoomDetail.this, "Lỗi khi tải dữ liệu Gas Level", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Failed to load Gas Level data: " + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    private void loadLeds() {
-        ledsReference.addValueEventListener(new ValueEventListener() {
+    private void loadLedData() {
+        ledsReferenceUser.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
                 ledList.clear();
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    Led led = snapshot.getValue(Led.class);
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                    Led led = dataSnapshot.getValue(Led.class);
                     if (led != null) {
                         ledList.add(led);
-                        Log.d("DUEMfe", "onDataChange: " + ledList);
                     }
                 }
                 ledAdapter.notifyDataSetChanged();
@@ -359,7 +377,7 @@ public class RoomDetail extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(RoomDetail.this, "Lỗi khi tải dữ liệu LED", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Failed to load LED data: " + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }

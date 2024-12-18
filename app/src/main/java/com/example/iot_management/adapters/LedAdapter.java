@@ -31,6 +31,7 @@ public class LedAdapter extends RecyclerView.Adapter<LedAdapter.LedViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull LedViewHolder holder, int position) {
         Led led = ledList.get(position);
+        holder.tvLedId.setText("LedID: " + led.getDeviceId());
         holder.tvLedState.setText("State: " + (led.isState() ? "On" : "Off"));
     }
 
@@ -40,10 +41,11 @@ public class LedAdapter extends RecyclerView.Adapter<LedAdapter.LedViewHolder> {
     }
 
     public static class LedViewHolder extends RecyclerView.ViewHolder {
-        TextView tvLedState;
+        TextView tvLedState, tvLedId;
 
         public LedViewHolder(@NonNull View itemView) {
             super(itemView);
+            tvLedId = itemView.findViewById(R.id.tvLedId);
             tvLedState = itemView.findViewById(R.id.tvLedState);
         }
     }

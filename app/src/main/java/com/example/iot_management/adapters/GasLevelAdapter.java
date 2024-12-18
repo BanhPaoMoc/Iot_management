@@ -31,6 +31,7 @@ public class GasLevelAdapter extends RecyclerView.Adapter<GasLevelAdapter.GasLev
     @Override
     public void onBindViewHolder(@NonNull GasLevelViewHolder holder, int position) {
         GasLevel gasLevel = gasLevelList.get(position);
+        holder.tvGasSensorId.setText("ID: " + gasLevel.getDeviceId() );
         holder.tvGasSensor.setText("Gas Sensor: " + gasLevel.getGas_sensor());
     }
 
@@ -40,11 +41,12 @@ public class GasLevelAdapter extends RecyclerView.Adapter<GasLevelAdapter.GasLev
     }
 
     public static class GasLevelViewHolder extends RecyclerView.ViewHolder {
-        TextView tvGasSensor;
+        TextView tvGasSensor, tvGasSensorId;
 
         public GasLevelViewHolder(@NonNull View itemView) {
             super(itemView);
             tvGasSensor = itemView.findViewById(R.id.tvGasSensor);
+            tvGasSensorId = itemView.findViewById(R.id.tvGasSensorId);
         }
     }
 }
