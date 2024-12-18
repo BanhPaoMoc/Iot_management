@@ -16,6 +16,9 @@
         android:theme="@style/Theme.Iot_management"
         tools:targetApi="31">
         <activity
+            android:name=".Activity.Loading"
+            android:exported="false" />
+        <activity
             android:name=".Activity.RoomDetail"
             android:exported="false" />
         <activity

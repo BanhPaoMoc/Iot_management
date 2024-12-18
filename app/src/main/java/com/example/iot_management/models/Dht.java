@@ -1,6 +1,7 @@
 package com.example.iot_management.models;
 
 public class Dht {
+    private String deviceId;
     private int humidity;
     private double temperature;
 
@@ -9,7 +10,21 @@ public class Dht {
         this.temperature = temperature;
     }
 
+    public Dht(String deviceId, int humidity, double temperature) {
+        this.deviceId = deviceId;
+        this.humidity = humidity;
+        this.temperature = temperature;
+    }
+
     public Dht() {
+    }
+
+    public String getDeviceId() {
+        return deviceId;
+    }
+
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
     }
 
     public int getHumidity() {

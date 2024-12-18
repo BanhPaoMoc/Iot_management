@@ -1,12 +1,10 @@
 
 package com.example.iot_management.Activity;
 
-import static android.content.ContentValues.TAG;
-
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -38,12 +36,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
 
 public class RoomDetail extends AppCompatActivity {
     private RecyclerView rvDhts,rvGasLevels, rvLeds;
     private EditText edtDeviceId;
-    private Button btnCheckDevice;
+    private Button btnCheckDevice, btnUpdateDevices;
     private TextView tvRoomNameDetails;
 
     private Room room;
@@ -53,9 +50,15 @@ public class RoomDetail extends AppCompatActivity {
     private DhtAdapter dhtAdapter;
     private GasLevelAdapter gasLevelAdapter;
     private LedAdapter ledAdapter;
+    private ArrayList<String> devicesIdinRoom;
     private ArrayList<Dht> dhtList;
     private ArrayList<GasLevel> gasLevelList;
     private ArrayList<Led> ledList;
+
+    // Khai báo các danh sách
+    List<String> dhtsReferenceUserList = new ArrayList<>();
+    List<String> gasLevelsReferenceUserList = new ArrayList<>();
+    List<String> ledsReferenceUserList = new ArrayList<>();
 
     private String currentUserId, roomId;
 
@@ -120,7 +123,6 @@ public class RoomDetail extends AppCompatActivity {
                 Toast.makeText(this, "Không nhận được dữ liệu phòng", Toast.LENGTH_SHORT).show();
                 finish();
             }
-
 
 
             dhtsReference = FirebaseDatabase.getInstance().getReference("Devices")
@@ -204,14 +206,93 @@ public class RoomDetail extends AppCompatActivity {
             loadDhtData();
             loadGasLevelData();
             loadLedData();
+
+
+            btnUpdateDevices = findViewById(R.id.btnUpdateDevices);
+
+            btnUpdateDevices.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    updateUserDevices();
+                }
+            });
         } catch (DatabaseException dbEx) {
             Log.e("DatabaseError", "Error parsing data: " + dbEx.getMessage());
         } catch (Exception ex) {
             Log.e("GeneralError", "Unexpected error: " + ex.getMessage());
         }
+    }
 
+    // Cập nhật danh sách thiết bị
+    public void updateUserDevices() {
+
+        Intent intent = new Intent(RoomDetail.this, Loading.class);
+        intent.putExtra("roomId", roomId);          // Truyền roomId
+        intent.putExtra("room", room);                   // Truyền đối tượng Room (nếu cần)
+        intent.putExtra("currentUserId", currentUserId); // Truyền currentUserId
+        startActivity(intent);
+
+        DatabaseReference userDevicesRef = FirebaseDatabase.getInstance().getReference("Users")
+                .child(currentUserId)
+                .child("rooms")
+                .child(roomId)
+                .child("devices");
+
+        // Lấy dữ liệu từ các bảng thiết bị: DHT, GasLevel, LED
+        userDevicesRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                // Kiểm tra nếu có dữ liệu trong "devices"
+                if (snapshot.exists()) {
+                    // Duyệt qua từng loại thiết bị trong bảng devices
+                    for (DataSnapshot deviceTypeSnapshot : snapshot.getChildren()) {
+                        // Lấy tên loại thiết bị (DHT, GasLevel, LED)
+                        String deviceType = deviceTypeSnapshot.getKey();
+                        // Duyệt qua từng deviceId của loại thiết bị đó
+                        for (DataSnapshot deviceIdSnapshot : deviceTypeSnapshot.getChildren()) {
+                            String deviceId = deviceIdSnapshot.getKey(); // Lấy deviceId
+
+                            // Thêm deviceId vào danh sách tương ứng
+                            switch (deviceType) {
+                                case "DHT":
+                                    dhtsReferenceUserList.add(deviceId);
+                                    break;
+                                case "GasLevel":
+                                    gasLevelsReferenceUserList.add(deviceId);
+                                    break;
+                                case "LED":
+                                    ledsReferenceUserList.add(deviceId);
+                                    break;
+                            }
+                        }
+                    }
+
+                    // Sau khi đã lấy và lưu tất cả deviceId vào các danh sách, có thể gọi hàm checkDeviceExistence với từng deviceId
+                    for (String deviceId : dhtsReferenceUserList) {
+                        checkDeviceExistence(roomId, deviceId);
+                    }
+                    for (String deviceId : gasLevelsReferenceUserList) {
+                        checkDeviceExistence(roomId, deviceId);
+                    }
+                    for (String deviceId : ledsReferenceUserList) {
+                        checkDeviceExistence(roomId, deviceId);
+                    }
+                } else {
+                    Toast.makeText(RoomDetail.this, "Không có thiết bị nào trong phòng này.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(RoomDetail.this, "Lỗi khi lấy thiết bị từ Users.", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        refreshRecyclerViews();
 
     }
+
+
 
     private void checkDeviceExistence(String roomId, String deviceId) {
         // Kiểm tra trong bảng Dht
@@ -293,6 +374,7 @@ public class RoomDetail extends AppCompatActivity {
                 .child("devices").child(deviceType)
                 .child(deviceId); // Tạo nhánh thiết bị
 
+
         // Dữ liệu của thiết bị
         Map<String, Object> deviceData = new HashMap<>();
         deviceData.put("deviceId", deviceId);
@@ -316,8 +398,15 @@ public class RoomDetail extends AppCompatActivity {
                 .addOnFailureListener(e -> {
                     Log.e("FIREBASE", "Lỗi khi thêm thiết bị vào phòng.", e);
                 });
+
     }
 
+    private void refreshRecyclerViews() {
+        // Làm mới các danh sách thiết bị trong RecyclerView
+        dhtAdapter.notifyDataSetChanged();
+        gasLevelAdapter.notifyDataSetChanged();
+        ledAdapter.notifyDataSetChanged();
+    }
 
     private void loadDhtData() {
         dhtsReferenceUser.addValueEventListener(new ValueEventListener() {

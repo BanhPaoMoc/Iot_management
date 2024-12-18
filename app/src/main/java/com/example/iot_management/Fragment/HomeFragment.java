@@ -66,34 +66,6 @@ public class HomeFragment extends Fragment {
         return view;
     }
 
-//    private void loadRooms() {
-//        databaseReference.addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-////                roomList.clear(); // Xóa danh sách cũ
-//
-//                for (DataSnapshot roomSnapshot : snapshot.getChildren()) {
-//                    try {
-//                        // Chuyển đổi dữ liệu từ Firebase thành đối tượng Room
-//                        Room room = roomSnapshot.getValue(Room.class);
-//                        if (room != null) {
-//                            roomList.add(room);
-//                        }
-//                    } catch (Exception e) {
-//                        Log.e("HomeFragment", "Error parsing room data", e);
-//                    }
-//                }
-//
-//                // Cập nhật giao diện RecyclerView
-//                roomAdapter.notifyDataSetChanged();
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//                Toast.makeText(getContext(), "Lỗi khi tải danh sách phòng: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-//            }
-//        });
-//    }
 
     private void loadRooms(String userId) {
         DatabaseReference roomsReference = FirebaseDatabase.getInstance()

@@ -101,22 +101,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-//        FirebaseAuth mAuth = FirebaseAuth.getInstance();
-//        FirebaseUser currenUser = mAuth.getCurrentUser();
-//
-//        if (currenUser == null) {
-//            Intent intent = new Intent(MainActivity.this, loginActivity.class);
-//            startActivity(intent);
-//            finish();
-//        } else {
-//            // Get current user id
-//            currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-//            // Initialize the Firebase database reference
-//            databaseReference = FirebaseDatabase.getInstance()
-//                    .getReference("Users")
-//                    .child(currentUserId)
-//                    .child("rooms");
-//        }
 
         // Set up the Floating Action Button click listener
         btnAdd.setOnClickListener(v -> showAddRoomDialog());

@@ -30,6 +30,7 @@ public class DhtAdapter extends RecyclerView.Adapter<DhtAdapter.DhtViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull DhtViewHolder holder, int position) {
         Dht dht = dhtList.get(position);
+        holder.tvDhtId.setText("Thiết bị đo nhiệt độ và độ ẩm ID: " + dht.getDeviceId());
         holder.tvHumidity.setText("Humidity: " + dht.getHumidity());
         holder.tvTemperature.setText("Temperature: " + dht.getTemperature());
     }
@@ -40,10 +41,11 @@ public class DhtAdapter extends RecyclerView.Adapter<DhtAdapter.DhtViewHolder> {
     }
 
     public static class DhtViewHolder extends RecyclerView.ViewHolder {
-        TextView tvHumidity, tvTemperature;
+        TextView tvHumidity, tvTemperature, tvDhtId;
 
         public DhtViewHolder(@NonNull View itemView) {
             super(itemView);
+            tvDhtId = itemView.findViewById(R.id.tvDhtId);
             tvHumidity = itemView.findViewById(R.id.tvHumidity);
             tvTemperature = itemView.findViewById(R.id.tvTemperature);
         }

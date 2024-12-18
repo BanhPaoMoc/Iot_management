@@ -32,7 +32,7 @@
 
         <!-- Nút thay đổi trạng thái On/Off -->
         <Button
-            android:id="@+id/btnToggleLed"
+            android:id="@+id/btnLedControl"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Turn On"
